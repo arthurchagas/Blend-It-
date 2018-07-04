@@ -16,35 +16,26 @@
 int main()
 {
     bool fim = false;
+    int posicao_mouse[2];
     int pontuacao;
     sf::RenderWindow window(sf::VideoMode(800, 600), "Blender");
 
     std::default_random_engine gerador;
     gerador.seed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
-    sf::CircleShape atual(100.f);
-    atual.setOutlineThickness(-2);
-    atual.setOutlineColor(sf::Color::White);
-    atual.setOrigin(400, 300);
+    sf::CircleShape atual = criar_circulo(100.0f, 400, 300, -2);
     atual.setPosition(2 * atual.getOrigin().x - atual.getRadius(), 2 * atual.getOrigin().y - atual.getRadius());
 
-    sf::CircleShape alvo(50.0f);
-    alvo.setOutlineThickness(-2);
-    alvo.setOutlineColor(sf::Color::White);
-    alvo.setOrigin(750, 50);
+    sf::CircleShape alvo = criar_circulo(50.0f, 750, 50, -2, cor_aleatoria_rgb(gerador));
     alvo.setPosition(2 * alvo.getOrigin().x - 75, alvo.getOrigin().y + 25);
-    alvo.setFillColor(cor_aleatoria_rgb(gerador));
-
-    sf::CircleShape preview(50.0f);
-    preview.setOutlineThickness(-2);
-    preview.setOutlineColor(sf::Color::White);
-    preview.setOrigin(400, 300 - 1.75f * atual.getRadius());
+    
+    sf::CircleShape preview = criar_circulo(50.0f, 400, 300 - 1.75f * atual.getRadius(), -2);
     preview.setPosition(2 * preview.getOrigin().x - preview.getRadius(), 2 * preview.getOrigin().y - preview.getRadius());
 
     sf::RectangleShape alvo_background({2.25f * alvo.getRadius(), 2.5f * alvo.getRadius()});
     alvo_background.setOrigin(alvo.getOrigin().x - 0.125f * alvo.getRadius(), alvo.getOrigin().y - 0.125f * alvo.getRadius());
     alvo_background.setPosition(2 * alvo_background.getOrigin().x - 75, alvo_background.getOrigin().y);
-    alvo_background.setFillColor(sf::Color(255 - alvo.getFillColor().r, 255 - alvo.getFillColor().g, 255 - alvo.getFillColor().b));
+    alvo_background.setFillColor(inverter(alvo.getFillColor()));
 
     sf::Font fonte;
     fonte.loadFromFile("rsc/arial.ttf");
@@ -59,29 +50,11 @@ int main()
     avl_t arvore;
     criaArvore(&arvore);
 
-    std::uniform_int_distribution<int> cor_constante_rand(0, 2);
-    int cor_constante = cor_constante_rand(gerador);
-    unsigned cor_constante_valor;
-    sf::Color (*gerador_de_cor)(std::default_random_engine &, unsigned);
-
-    if (cor_constante == 0)
-    {
-        gerador_de_cor = &cor_aleatoria_gb;
-        cor_constante_valor = alvo.getFillColor().r;
-    }
-    else if (cor_constante == 1)
-    {
-        gerador_de_cor = &cor_aleatoria_rb;
-        cor_constante_valor = alvo.getFillColor().g;
-    }
-    else
-    {
-        gerador_de_cor = &cor_aleatoria_rg;
-        cor_constante_valor = alvo.getFillColor().b;
-    }
+    sf::Color (*gerador_de_cor)(std::default_random_engine &, unsigned) = nullptr;
+    sf::Uint8 componente_constante = escolher_componente_constante(gerador, alvo.getFillColor(), &gerador_de_cor);
 
     for (int k = 0; k < 256; ++k)
-        inserir(&arvore, {(*gerador_de_cor)(gerador, cor_constante_valor)});
+        inserir(&arvore, {(*gerador_de_cor)(gerador, componente_constante)});
 
     apontador_t raiz_atual = arvore;
 
@@ -90,8 +63,6 @@ int main()
 
     bt->set_cor(raiz_atual->esquerda->item.cor);
     bt2->set_cor(raiz_atual->direita->item.cor);
-
-    int mousePos[2];
 
     while (window.isOpen())
     {
@@ -144,12 +115,12 @@ int main()
             }
             if (!fim && event.type == sf::Event::MouseMoved)
             {
-                mousePos[0] = event.mouseMove.x;
-                mousePos[1] = event.mouseMove.y;
+                posicao_mouse[0] = event.mouseMove.x;
+                posicao_mouse[1] = event.mouseMove.y;
 
-                if (bt->clicado(mousePos[0], mousePos[1]))
+                if (bt->clicado(posicao_mouse[0], posicao_mouse[1]))
                     preview.setFillColor(misturar(bt->get_cor(), atual.getFillColor()));
-                else if (bt2->clicado(mousePos[0], mousePos[1]))
+                else if (bt2->clicado(posicao_mouse[0], posicao_mouse[1]))
                     preview.setFillColor(misturar(bt2->get_cor(), atual.getFillColor()));
             }
         }
@@ -162,7 +133,7 @@ int main()
             window.draw(bt->get_circulo());
             window.draw(bt2->get_circulo());
 
-            if (bt->clicado(mousePos[0], mousePos[1]) || bt2->clicado(mousePos[0], mousePos[1]))
+            if (bt->clicado(posicao_mouse[0], posicao_mouse[1]) || bt2->clicado(posicao_mouse[0], posicao_mouse[1]))
                 window.draw(preview);
         }
         else
