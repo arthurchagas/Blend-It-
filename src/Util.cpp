@@ -1,67 +1,5 @@
 #include "Util.h"
 
-#include <chrono>
-
-std::uniform_int_distribution<int> rgb(0, 255);
-
-sf::Color cor_aleatoria_rgb(std::default_random_engine &gerador)
-{
-    sf::Color aux;
-
-    aux.r = rgb(gerador);
-    aux.g = rgb(gerador);
-    aux.b = rgb(gerador);
-
-    return aux;
-}
-
-sf::Color cor_aleatoria_rg(std::default_random_engine &gerador, unsigned b)
-{
-    sf::Color aux;
-
-    aux.r = rgb(gerador);
-    aux.g = rgb(gerador);
-    aux.b = b;
-
-    return aux;
-}
-
-sf::Color cor_aleatoria_rb(std::default_random_engine &gerador, unsigned g)
-{
-    sf::Color aux;
-
-    aux.r = rgb(gerador);
-    aux.g = g;
-    aux.b = rgb(gerador);
-
-    return aux;
-}
-
-sf::Color cor_aleatoria_gb(std::default_random_engine &gerador, unsigned r)
-{
-    sf::Color aux;
-
-    aux.r = r;
-    aux.g = rgb(gerador);
-    aux.b = rgb(gerador);
-
-    return aux;
-}
-
-sf::Color misturar(sf::Color a, sf::Color b)
-{
-    return sf::Color(static_cast<sf::Uint8>(a.r / 2.0f + b.r / 2.0f),
-                     static_cast<sf::Uint8>(a.g / 2.0f + b.g / 2.0f),
-                     static_cast<sf::Uint8>(a.b / 2.0f + b.b / 2.0f));
-}
-
-sf::Color inverter(sf::Color a)
-{
-    return sf::Color(static_cast<sf::Uint8>(255 - a.r),
-                     static_cast<sf::Uint8>(255 - a.g),
-                     static_cast<sf::Uint8>(255 - a.b));
-}
-
 sf::CircleShape criar_circulo(float raio, int x_origem, int y_origem, int grossura_borda,
                               sf::Color cor_preencher, sf::Color cor_borda)
 {
@@ -83,24 +21,6 @@ sf::Text criar_texto(sf::String conteudo, sf::Font &fonte, unsigned tamanho, sf:
     return aux;
 }
 
-void criar_formas(std::default_random_engine &gerador, sf::CircleShape &atual, sf::CircleShape &alvo,
-                  sf::CircleShape &preview, sf::RectangleShape &alvo_background)
-{
-    atual = criar_circulo(100.0f, 400, 300, -2);
-    atual.setPosition(2 * atual.getOrigin().x - atual.getRadius(), 2 * atual.getOrigin().y - atual.getRadius());
-
-    alvo = criar_circulo(50.0f, 750, 50, -2, cor_aleatoria_rgb(gerador));
-    alvo.setPosition(2 * alvo.getOrigin().x - 75, alvo.getOrigin().y + 25);
-
-    preview = criar_circulo(50.0f, 400, 300 - 1.75f * atual.getRadius(), -2);
-    preview.setPosition(2 * preview.getOrigin().x - preview.getRadius(), 2 * preview.getOrigin().y - preview.getRadius());
-
-    alvo_background.setSize({2.25f * alvo.getRadius(), 2.5f * alvo.getRadius()});
-    alvo_background.setOrigin(alvo.getOrigin().x - 0.125f * alvo.getRadius(), alvo.getOrigin().y - 0.125f * alvo.getRadius());
-    alvo_background.setPosition(2 * alvo_background.getOrigin().x - 75, alvo_background.getOrigin().y);
-    alvo_background.setFillColor(inverter(alvo.getFillColor()));
-}
-
 sf::Uint8 escolher_componente_constante(std::default_random_engine &gerador, sf::Color cor,
                                         sf::Color (**gerador_de_cor)(std::default_random_engine &, unsigned))
 {
@@ -120,25 +40,18 @@ sf::Uint8 escolher_componente_constante(std::default_random_engine &gerador, sf:
     }
 }
 
-int calcular_pontuacao(sf::Color a, sf::Color b)
+std::string pontuacao(sf::Color a, sf::Color b)
 {
-    return static_cast<int>(std::ceil(std::sqrt(2 * 255 * 255)) -
-                            std::sqrt(std::pow(a.r - b.r, 2) +
-                                      std::pow(a.g - b.g, 2) +
-                                      std::pow(a.b - b.b, 2)));
+    const double fator = std::sqrt(2 * 255 * 255);
+    double pontuacao = fator - distancia(a, b);
+    double pontuacao_por_cento = pontuacao / fator * 100;
+    return "Pontuacao: " + std::to_string(static_cast<int>(std::floor(pontuacao_por_cento))) + "%";
 }
 
-void iniciar(std::default_random_engine &gerador, sf::CircleShape &atual, sf::CircleShape &alvo,
-             sf::CircleShape &preview, sf::RectangleShape &alvo_background, sf::Font &fonte, sf::Text &alvo_txt,
-             sf::Text &pontuacao_txt)
+void iniciar(std::default_random_engine &gerador, sf::Font &fonte)
 {
     gerador.seed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-    criar_formas(gerador, atual, alvo, preview, alvo_background);
     fonte.loadFromFile("rsc/arial.ttf");
-    alvo_txt = criar_texto("Cor-Alvo", fonte, 20, alvo.getFillColor(),
-                           alvo_background.getPosition().x - alvo_background.getOrigin().x,
-                           alvo_background.getPosition().y - alvo_background.getOrigin().y);
-    pontuacao_txt = criar_texto("", fonte, 48);
 }
 
 void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor_base, apontador_t &raiz_atual,
@@ -150,7 +63,7 @@ void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor
     criaArvore(&arvore);
     componente_constante = escolher_componente_constante(gerador, cor_base, &gerador_de_cor);
 
-    unsigned limite = static_cast<unsigned>(1 << altura);
+    unsigned limite = static_cast<unsigned>(std::pow(2, altura));
 
     for (unsigned k = 0; k < limite; ++k)
         inserir(&arvore, {(*gerador_de_cor)(gerador, componente_constante)});
@@ -165,7 +78,7 @@ void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor
 }
 
 void desenhar_jogo(sf::RenderWindow &janela, sf::RectangleShape &alvo_background, sf::Text &alvo_txt, Botao *&bt,
-                   Botao *&bt2, sf::Event::MouseMoveEvent event, sf::CircleShape &preview, sf::CircleShape &atual,
+                   Botao *&bt2, int x_mouse, int y_mouse, sf::CircleShape &preview, sf::CircleShape &atual,
                    sf::CircleShape &alvo)
 {
     janela.draw(alvo_background);
@@ -173,7 +86,7 @@ void desenhar_jogo(sf::RenderWindow &janela, sf::RectangleShape &alvo_background
     janela.draw(bt->get_circulo());
     janela.draw(bt2->get_circulo());
 
-    if (bt->clicado(event) || bt2->clicado(event))
+    if (bt->clicado(x_mouse, y_mouse) || bt2->clicado(x_mouse, y_mouse))
         janela.draw(preview);
 
     janela.draw(alvo);

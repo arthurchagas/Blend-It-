@@ -1,7 +1,7 @@
 RM = del
 MAIN = Blender.exe
 flags = -Wall
-TARGET_O = main.o Botao.o AVL.o Util.o
+TARGET_O = main.o Botao.o AVL.o Util.o Cor.o
 LINKER_INCLUDE = -Llib -lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system
 PREPROCESSOR_INCLUDE = -Iinclude
 
@@ -20,6 +20,9 @@ AVL.o:
 
 Util.o:
 	g++ -c src/Util.cpp $(flags) $(PREPROCESSOR_INCLUDE)
+
+Cor.o:
+	g++ -c src/Util/Cor.cpp $(flags) $(PREPROCESSOR_INCLUDE)
 
 clean:
 	$(RM) $(MAIN) $(TARGET_O)
