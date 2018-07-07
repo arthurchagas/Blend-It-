@@ -11,72 +11,40 @@
 #include <SFML/Window/Event.hpp>
 
 #include <chrono>
-#include <cmath>
 
 int main()
 {
     bool fim = false;
-    int posicao_mouse[2];
-    int pontuacao;
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Blender");
 
     std::default_random_engine gerador;
-    gerador.seed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
-    sf::CircleShape atual = criar_circulo(100.0f, 400, 300, -2);
-    atual.setPosition(2 * atual.getOrigin().x - atual.getRadius(), 2 * atual.getOrigin().y - atual.getRadius());
-
-    sf::CircleShape alvo = criar_circulo(50.0f, 750, 50, -2, cor_aleatoria_rgb(gerador));
-    alvo.setPosition(2 * alvo.getOrigin().x - 75, alvo.getOrigin().y + 25);
-    
-    sf::CircleShape preview = criar_circulo(50.0f, 400, 300 - 1.75f * atual.getRadius(), -2);
-    preview.setPosition(2 * preview.getOrigin().x - preview.getRadius(), 2 * preview.getOrigin().y - preview.getRadius());
-
-    sf::RectangleShape alvo_background({2.25f * alvo.getRadius(), 2.5f * alvo.getRadius()});
-    alvo_background.setOrigin(alvo.getOrigin().x - 0.125f * alvo.getRadius(), alvo.getOrigin().y - 0.125f * alvo.getRadius());
-    alvo_background.setPosition(2 * alvo_background.getOrigin().x - 75, alvo_background.getOrigin().y);
-    alvo_background.setFillColor(inverter(alvo.getFillColor()));
-
+    sf::RenderWindow janela(sf::VideoMode(800, 600), "Blender");
+    sf::CircleShape atual, alvo, preview;
+    sf::RectangleShape alvo_background;
+    sf::Text alvo_txt, pontuacao_txt;
     sf::Font fonte;
-    fonte.loadFromFile("rsc/arial.ttf");
-
-    sf::Text alvo_txt("Cor-Alvo", fonte, 20);
-    alvo_txt.setFillColor(alvo.getFillColor());
-    alvo_txt.setPosition(alvo_background.getPosition().x - alvo_background.getOrigin().x,
-                         alvo_background.getPosition().y - alvo_background.getOrigin().y);
-
-    sf::Text pontuacao_txt("", fonte, 48);
 
     avl_t arvore;
-    criaArvore(&arvore);
+    apontador_t raiz_atual;
+    Botao *bt, *bt2;
 
-    sf::Color (*gerador_de_cor)(std::default_random_engine &, unsigned) = nullptr;
-    sf::Uint8 componente_constante = escolher_componente_constante(gerador, alvo.getFillColor(), &gerador_de_cor);
+    iniciar(gerador, atual, alvo, preview, alvo_background, fonte, alvo_txt, pontuacao_txt);
 
-    for (int k = 0; k < 256; ++k)
-        inserir(&arvore, {(*gerador_de_cor)(gerador, componente_constante)});
+    novo_jogo(gerador, arvore, alvo.getFillColor(), raiz_atual, bt, bt2, 10);
 
-    apontador_t raiz_atual = arvore;
-
-    auto bt = new Botao(400 - 2 * atual.getRadius(), 300, 50.0f);
-    auto bt2 = new Botao(400 + 2 * atual.getRadius(), 300, 50.0f);
-
-    bt->set_cor(raiz_atual->esquerda->item.cor);
-    bt2->set_cor(raiz_atual->direita->item.cor);
-
-    while (window.isOpen())
+    while (janela.isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
+        while (janela.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
-                window.close();
+                janela.close();
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
                 if (!fim)
                 {
-                    bool bt_clicado = bt->clicado(event.mouseButton.x, event.mouseButton.y);
-                    bool bt2_clicado = bt2->clicado(event.mouseButton.x, event.mouseButton.y);
+                    bool bt_clicado = bt->clicado(event.mouseButton);
+                    bool bt2_clicado = bt2->clicado(event.mouseButton);
 
                     if (!bt_clicado && !bt2_clicado)
                         continue;
@@ -89,7 +57,11 @@ int main()
                         raiz_atual = raiz_atual->direita;
 
                     if (raiz_atual->esquerda == nullptr || raiz_atual->direita == nullptr)
+                    {
                         fim = true;
+                        pontuacao_txt.setString("Pontuacao: " + std::to_string(calcular_pontuacao(alvo.getFillColor(), atual.getFillColor())));
+                        pontuacao_txt.setFillColor(alvo.getFillColor());
+                    }
 
                     if (!fim)
                     {
@@ -102,48 +74,32 @@ int main()
                             preview.setFillColor(misturar(bt2->get_cor(), atual.getFillColor()));
                     }
                 }
-
-                if (fim)
+                else
                 {
-                    pontuacao = static_cast<int>(std::ceil(std::sqrt(2 * 255 * 255)) -
-                                std::sqrt(std::pow(alvo.getFillColor().r - atual.getFillColor().r, 2) +
-                                          std::pow(alvo.getFillColor().g - atual.getFillColor().g, 2) +
-                                          std::pow(alvo.getFillColor().b - atual.getFillColor().b, 2)));
-                    pontuacao_txt.setString("Pontuacao: " + std::to_string(pontuacao));
-                    pontuacao_txt.setFillColor(alvo.getFillColor());
+                    fim = false;
+                    esvaziarArvore(&arvore);
+                    criar_formas(gerador, atual, alvo, preview, alvo_background);
+                    alvo_txt.setFillColor(alvo.getFillColor());
+                    novo_jogo(gerador, arvore, alvo.getFillColor(), raiz_atual, bt, bt2, 10);
                 }
             }
             if (!fim && event.type == sf::Event::MouseMoved)
             {
-                posicao_mouse[0] = event.mouseMove.x;
-                posicao_mouse[1] = event.mouseMove.y;
-
-                if (bt->clicado(posicao_mouse[0], posicao_mouse[1]))
+                if (bt->clicado(event.mouseMove))
                     preview.setFillColor(misturar(bt->get_cor(), atual.getFillColor()));
-                else if (bt2->clicado(posicao_mouse[0], posicao_mouse[1]))
+                else if (bt2->clicado(event.mouseMove))
                     preview.setFillColor(misturar(bt2->get_cor(), atual.getFillColor()));
             }
         }
 
-        window.clear();
+        janela.clear();
+
         if (!fim)
-        {
-            window.draw(alvo_background);
-            window.draw(alvo_txt);
-            window.draw(bt->get_circulo());
-            window.draw(bt2->get_circulo());
-
-            if (bt->clicado(posicao_mouse[0], posicao_mouse[1]) || bt2->clicado(posicao_mouse[0], posicao_mouse[1]))
-                window.draw(preview);
-        }
+            desenhar_jogo(janela, alvo_background, alvo_txt, bt, bt2, event.mouseMove, preview, atual, alvo);
         else
-        {
-            window.draw(pontuacao_txt);
-        }
+            desenhar_fim_de_jogo(janela, pontuacao_txt, atual, alvo);
 
-        window.draw(alvo);
-        window.draw(atual);
-        window.display();
+        janela.display();
     }
 
     delete bt;

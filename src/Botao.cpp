@@ -18,15 +18,27 @@ bool Botao::clicado(const int x, const int y) const
 												  std::pow(this->circulo.getOrigin().y - y, 2));
 }
 
+bool Botao::clicado(sf::Event::MouseMoveEvent event) const
+{
+	return this->clicado(event.x, event.y);
+}
+
+bool Botao::clicado(sf::Event::MouseButtonEvent event) const
+{
+	return this->clicado(event.x, event.y);
+}
+
 sf::CircleShape &Botao::get_circulo()
 {
 	return this->circulo;
 }
 
-sf::Color Botao::get_cor() {
+sf::Color Botao::get_cor()
+{
 	return this->circulo.getFillColor();
 }
 
-void Botao::set_cor(sf::Color cor) {
+void Botao::set_cor(sf::Color cor)
+{
 	this->circulo.setFillColor(cor);
 }
