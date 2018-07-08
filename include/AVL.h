@@ -22,7 +22,7 @@ typedef apontador_t avl_t;
 
 void criaArvore(avl_t *arvore);
 
-void inserir(avl_t *arvore, item_t conteudo);
+bool inserir(avl_t *arvore, item_t conteudo);
 void remover(avl_t *arvore, sf::Color c);
 
 void esvaziarArvore(avl_t *arvore);

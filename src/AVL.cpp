@@ -4,7 +4,7 @@
 
 #include "AVL.h"
 
-static void __inserir(avl_t *arvore, item_t conteudo, signed char *subArvoreCresceu);
+static bool __inserir(avl_t *arvore, item_t conteudo, signed char *subArvoreCresceu);
 
 static void __remover(avl_t *arvore, sf::Color c, signed char *subArvoreEncolheu);
 
@@ -31,13 +31,13 @@ void criaArvore(avl_t *arvore)
     *arvore = NULL;
 }
 
-void inserir(avl_t *arvore, item_t conteudo)
+bool inserir(avl_t *arvore, item_t conteudo)
 {
     signed char subArvoreCresceu = 0;
 
     if (DEBUG)
         printf("Inserindo (%d, %d, %d)...", conteudo.cor.r, conteudo.cor.g, conteudo.cor.b);
-    __inserir(arvore, conteudo, &subArvoreCresceu);
+    return __inserir(arvore, conteudo, &subArvoreCresceu);
 }
 
 void remover(avl_t *arvore, sf::Color c)
@@ -69,7 +69,7 @@ static void __criaRaiz(avl_t *arvore, item_t conteudo)
     (*arvore)->esquerda = NULL;
 }
 
-static void __inserir(avl_t *arvore, item_t conteudo, signed char *subArvoreCresceu)
+static bool __inserir(avl_t *arvore, item_t conteudo, signed char *subArvoreCresceu)
 {
     if (*arvore == NULL)
     {
@@ -77,14 +77,15 @@ static void __inserir(avl_t *arvore, item_t conteudo, signed char *subArvoreCres
         *subArvoreCresceu = 1;
         if (DEBUG)
             printf("Sucesso!\n");
-        return;
+        return true;
     }
 
     signed char subArvoreEncolheu = -1;
+    bool sucesso;
 
     if ((*arvore)->item.cor.toInteger() > conteudo.cor.toInteger())
     {
-        __inserir(&(*arvore)->esquerda, conteudo, subArvoreCresceu);
+        sucesso = __inserir(&(*arvore)->esquerda, conteudo, subArvoreCresceu);
 
         if (*subArvoreCresceu)
         {
@@ -108,7 +109,7 @@ static void __inserir(avl_t *arvore, item_t conteudo, signed char *subArvoreCres
     }
     else if ((*arvore)->item.cor.toInteger() < conteudo.cor.toInteger())
     {
-        __inserir(&(*arvore)->direita, conteudo, subArvoreCresceu);
+        sucesso = __inserir(&(*arvore)->direita, conteudo, subArvoreCresceu);
 
         if (*subArvoreCresceu)
         {
@@ -130,8 +131,14 @@ static void __inserir(avl_t *arvore, item_t conteudo, signed char *subArvoreCres
                 --(*arvore)->balanceamento;
         }
     }
-    else if (DEBUG)
-        printf("Erro! Chave j existe\n");
+    else
+    {
+        if (DEBUG)
+            printf("Erro! Chave j existe\n");
+        sucesso = false;
+    }
+
+    return sucesso;
 }
 
 static void __remover(avl_t *arvore, sf::Color c, signed char *subArvoreEncolheu)

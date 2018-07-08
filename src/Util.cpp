@@ -103,12 +103,20 @@ void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor
     // Define o gerador de cor
     componente_constante = escolher_componente_constante(gerador, cor_base, &gerador_de_cor);
 
+    // Garantir que altura está entre 4 e 15
+    if (altura > 15)
+        altura = 15;
+    
+    if (altura < 4)
+        altura = 4;
+
     // Define quantas cores devem ser geradas dependendo da altura desejada
     unsigned limite = static_cast<unsigned>(std::pow(2, altura));
 
     // Sorteia as cores da árvore
     for (unsigned k = 0; k < limite; ++k)
-        inserir(&arvore, {(*gerador_de_cor)(gerador, componente_constante)});
+        // Lidar com cores repetidas
+        while(!inserir(&arvore, {(*gerador_de_cor)(gerador, componente_constante)}));
 
     // Reseta a posição atual na árvore
     raiz_atual = arvore;
