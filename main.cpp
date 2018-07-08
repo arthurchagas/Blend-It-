@@ -4,7 +4,7 @@
 
 int main()
 {
-    bool fim = false;
+    bool fim = false, inicio = true;
     int x_mouse, y_mouse;
 
     std::default_random_engine gerador;
@@ -13,12 +13,17 @@ int main()
     sf::CircleShape atual, alvo, preview;
     sf::Text alvo_txt, pontuacao_txt;
     sf::Font fonte;
+    sf::Texture tela_inicio_texture, botao_inicio_texture;
+    sf::Sprite tela_inicio, botao_inicio;
 
     avl_t arvore;
     apontador_t raiz_atual;
-    Botao *bt, *bt2;
+    Botao *bt, *bt2, *bt_inicio;
 
-    iniciar(gerador, fonte);
+    iniciar(gerador, fonte, tela_inicio_texture, tela_inicio, botao_inicio_texture, botao_inicio);
+
+    bt_inicio = new Botao(400, 425, 110);
+    botao_inicio.setPosition(250, 275);
 
     atual = criar_circulo(100.0f, 400, 300, -6);
     atual.setPosition(700, 500);
@@ -43,7 +48,9 @@ int main()
                 janela.close();
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
-                if (!fim)
+                if (inicio && bt_inicio->clicado(event.mouseButton.x, event.mouseButton.y))
+                    inicio = false;
+                else if (!fim)
                 {
                     bool bt_clicado = bt->clicado(event.mouseButton.x, event.mouseButton.y);
                     bool bt2_clicado = bt2->clicado(event.mouseButton.x, event.mouseButton.y);
@@ -78,6 +85,7 @@ int main()
                 }
                 else
                 {
+                    inicio = true;
                     fim = false;
                     delete bt;
                     delete bt2;
@@ -90,6 +98,7 @@ int main()
                     novo_jogo(gerador, arvore, alvo.getFillColor(), raiz_atual, bt, bt2, 10);
                 }
             }
+
             if (!fim && event.type == sf::Event::MouseMoved)
             {
                 x_mouse = event.mouseMove.x;
@@ -104,7 +113,9 @@ int main()
 
         janela.clear(inverter(alvo.getFillColor()));
 
-        if (!fim)
+        if (inicio)
+            desenhar_inicio(janela, tela_inicio, botao_inicio);
+        else if (!fim)
             desenhar_jogo(janela, alvo_txt, bt, bt2, x_mouse, y_mouse, preview, atual, alvo);
         else
             desenhar_fim_de_jogo(janela, pontuacao_txt, atual, alvo);

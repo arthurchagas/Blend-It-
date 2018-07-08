@@ -48,10 +48,18 @@ std::string pontuacao(sf::Color a, sf::Color b)
     return "Pontuacao: " + std::to_string(static_cast<int>(std::floor(pontuacao_por_cento))) + "%";
 }
 
-void iniciar(std::default_random_engine &gerador, sf::Font &fonte)
+void iniciar(std::default_random_engine &gerador, sf::Font &fonte, sf::Texture &tela_inicio_texture,
+             sf::Sprite &tela_inicio, sf::Texture &botao_inicio_texture, sf::Sprite &botao_inicio)
 {
     gerador.seed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+
     fonte.loadFromFile("rsc/arial.ttf");
+
+    tela_inicio_texture.loadFromFile("rsc/TelaInicio.png");
+    tela_inicio.setTexture(tela_inicio_texture);
+
+    botao_inicio_texture.loadFromFile("rsc/Jogar.png");
+    botao_inicio.setTexture(botao_inicio_texture);
 }
 
 void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor_base, apontador_t &raiz_atual,
@@ -97,4 +105,10 @@ void desenhar_fim_de_jogo(sf::RenderWindow &janela, sf::Text pontuacao_txt, sf::
     janela.draw(pontuacao_txt);
     janela.draw(alvo);
     janela.draw(atual);
+}
+
+void desenhar_inicio(sf::RenderWindow &janela, sf::Sprite &tela_inicio, sf::Sprite &botao_inicio)
+{
+    janela.draw(tela_inicio);
+    janela.draw(botao_inicio);
 }
