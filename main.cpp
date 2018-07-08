@@ -11,7 +11,6 @@ int main()
 
     sf::RenderWindow janela(sf::VideoMode(800, 600), "Blender");
     sf::CircleShape atual, alvo, preview;
-    sf::RectangleShape alvo_background;
     sf::Text alvo_txt, pontuacao_txt;
     sf::Font fonte;
 
@@ -21,19 +20,14 @@ int main()
 
     iniciar(gerador, fonte);
 
-    atual = criar_circulo(100.0f, 400, 300, -2);
+    atual = criar_circulo(100.0f, 400, 300, -6);
     atual.setPosition(700, 500);
 
-    alvo = criar_circulo(50.0f, 750, 50, -2, cor_aleatoria_rgb(gerador));
+    alvo = criar_circulo(50.0f, 750, 50, -4, cor_aleatoria_rgb(gerador));
     alvo.setPosition(1425, 75);
 
-    preview = criar_circulo(50.0f, 400, 125, -2);
+    preview = criar_circulo(50.0f, 400, 125, -4);
     preview.setPosition(750, 200);
-
-    alvo_background.setSize({112.5f, 125});
-    alvo_background.setOrigin(743.75f, 43.75f);
-    alvo_background.setPosition(1412.5f, 43.75f);
-    alvo_background.setFillColor(inverter(alvo.getFillColor()));
 
     alvo_txt = criar_texto("Cor-Alvo", fonte, 20, alvo.getFillColor(), 668.75f);
     pontuacao_txt = criar_texto("", fonte, 48);
@@ -92,7 +86,6 @@ int main()
                     alvo.setFillColor(cor_aleatoria_rgb(gerador));
                     atual.setFillColor(sf::Color::White);
                     alvo_txt.setFillColor(alvo.getFillColor());
-                    alvo_background.setFillColor(inverter(alvo.getFillColor()));
 
                     novo_jogo(gerador, arvore, alvo.getFillColor(), raiz_atual, bt, bt2, 10);
                 }
@@ -109,10 +102,10 @@ int main()
             }
         }
 
-        janela.clear();
+        janela.clear(inverter(alvo.getFillColor()));
 
         if (!fim)
-            desenhar_jogo(janela, alvo_background, alvo_txt, bt, bt2, x_mouse, y_mouse, preview, atual, alvo);
+            desenhar_jogo(janela, alvo_txt, bt, bt2, x_mouse, y_mouse, preview, atual, alvo);
         else
             desenhar_fim_de_jogo(janela, pontuacao_txt, atual, alvo);
 

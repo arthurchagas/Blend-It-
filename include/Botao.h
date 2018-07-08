@@ -7,11 +7,9 @@
 
 class Botao {
 public:
-	Botao(float x, float y, float r);
+	Botao(float x, float y, float r, int grossura_borda = 0, sf::Color cor_borda = sf::Color::Black);
 
 	bool clicado(int x, int y) const;
-	bool clicado(sf::Event::MouseMoveEvent event) const;
-	bool clicado(sf::Event::MouseButtonEvent event) const;
 
 	sf::Color get_cor();
 	sf::CircleShape& get_circulo();

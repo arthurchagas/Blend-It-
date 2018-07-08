@@ -15,7 +15,7 @@
 #include <chrono>
 
 sf::CircleShape criar_circulo(float raio, int x_origem, int y_origem, int grossura_borda = 0,
-                              sf::Color cor_preencher = sf::Color::White, sf::Color cor_borda = sf::Color::White);
+                              sf::Color cor_preencher = sf::Color::White, sf::Color cor_borda = sf::Color::Black);
 sf::Text criar_texto(sf::String conteudo, sf::Font &fonte, unsigned tamanho, sf::Color cor_preencher = sf::Color::White,
                      int x = 0, int y = 0);
 
@@ -27,9 +27,8 @@ std::string pontuacao(sf::Color a, sf::Color b);
 void iniciar(std::default_random_engine &gerador, sf::Font &fonte);
 void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor_base, apontador_t &raiz_atual,
                Botao *&bt, Botao *&bt2, unsigned altura);
-void desenhar_jogo(sf::RenderWindow &janela, sf::RectangleShape &alvo_background, sf::Text &alvo_txt, Botao *&bt,
-                   Botao *&bt2, int x_mouse, int y_mouse, sf::CircleShape &preview, sf::CircleShape &atual,
-                   sf::CircleShape &alvo);
+void desenhar_jogo(sf::RenderWindow &janela, sf::Text &alvo_txt, Botao *&bt, Botao *&bt2, int x_mouse, int y_mouse,
+                   sf::CircleShape &preview, sf::CircleShape &atual, sf::CircleShape &alvo);
 void desenhar_fim_de_jogo(sf::RenderWindow &janela, sf::Text pontuacao_txt, sf::CircleShape &atual,
                           sf::CircleShape &alvo);
 

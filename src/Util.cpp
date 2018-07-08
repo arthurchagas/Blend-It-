@@ -70,18 +70,16 @@ void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor
 
     raiz_atual = arvore;
 
-    bt = new Botao(200, 300, 50.0f);
-    bt2 = new Botao(600, 300, 50.0f);
+    bt = new Botao(200, 300, 50.0f, -4);
+    bt2 = new Botao(600, 300, 50.0f, -4);
 
     bt->set_cor(raiz_atual->esquerda->item.cor);
     bt2->set_cor(raiz_atual->direita->item.cor);
 }
 
-void desenhar_jogo(sf::RenderWindow &janela, sf::RectangleShape &alvo_background, sf::Text &alvo_txt, Botao *&bt,
-                   Botao *&bt2, int x_mouse, int y_mouse, sf::CircleShape &preview, sf::CircleShape &atual,
-                   sf::CircleShape &alvo)
+void desenhar_jogo(sf::RenderWindow &janela, sf::Text &alvo_txt, Botao *&bt, Botao *&bt2, int x_mouse, int y_mouse,
+                   sf::CircleShape &preview, sf::CircleShape &atual, sf::CircleShape &alvo)
 {
-    janela.draw(alvo_background);
     janela.draw(alvo_txt);
     janela.draw(bt->get_circulo());
     janela.draw(bt2->get_circulo());
