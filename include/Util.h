@@ -27,14 +27,15 @@ sf::Uint8 escolher_componente_constante(std::default_random_engine &gerador, sf:
 std::string pontuacao(sf::Color a, sf::Color b);
 
 void iniciar(std::default_random_engine &gerador, sf::Font &fonte, sf::Texture &tela_inicio_texture,
-             sf::Sprite &tela_inicio, sf::Texture &botao_inicio_texture, sf::Sprite &botao_inicio);
+             sf::Sprite &tela_inicio, sf::Texture &botao_inicio_texture, sf::Sprite &botao_inicio,
+             sf::Texture &tela_final_texture, sf::Sprite &tela_final);
 void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor_base, apontador_t &raiz_atual,
                Botao *&bt, Botao *&bt2, unsigned altura);
 
 void desenhar_jogo(sf::RenderWindow &janela, sf::Text &alvo_txt, Botao *&bt, Botao *&bt2, int x_mouse, int y_mouse,
                    sf::CircleShape &preview, sf::CircleShape &atual, sf::CircleShape &alvo);
 void desenhar_fim_de_jogo(sf::RenderWindow &janela, sf::Text pontuacao_txt, sf::CircleShape &atual,
-                          sf::CircleShape &alvo);
+                          sf::CircleShape &alvo, sf::Sprite &tela_final);
 void desenhar_inicio(sf::RenderWindow &janela, sf::Sprite &tela_inicio, sf::Sprite &botao_inicio);
 
 #endif //UTIL_H

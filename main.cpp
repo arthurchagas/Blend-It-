@@ -13,14 +13,15 @@ int main()
     sf::CircleShape atual, alvo, preview;
     sf::Text alvo_txt, pontuacao_txt;
     sf::Font fonte;
-    sf::Texture tela_inicio_texture, botao_inicio_texture;
-    sf::Sprite tela_inicio, botao_inicio;
+    sf::Texture tela_inicio_texture, botao_inicio_texture, tela_final_texture;
+    sf::Sprite tela_inicio, botao_inicio, tela_final;
 
     avl_t arvore;
     apontador_t raiz_atual;
     Botao *bt, *bt2, *bt_inicio;
 
-    iniciar(gerador, fonte, tela_inicio_texture, tela_inicio, botao_inicio_texture, botao_inicio);
+    iniciar(gerador, fonte, tela_inicio_texture, tela_inicio, botao_inicio_texture, botao_inicio,
+            tela_final_texture, tela_final);
 
     bt_inicio = new Botao(400, 425, 110);
     botao_inicio.setPosition(250, 275);
@@ -36,6 +37,7 @@ int main()
 
     alvo_txt = criar_texto("Cor-Alvo", fonte, 20, alvo.getFillColor(), 668.75f);
     pontuacao_txt = criar_texto("", fonte, 48);
+    pontuacao_txt.setPosition(480, 455);
 
     novo_jogo(gerador, arvore, alvo.getFillColor(), raiz_atual, bt, bt2, 10);
 
@@ -68,8 +70,15 @@ int main()
                     if (raiz_atual->esquerda == nullptr || raiz_atual->direita == nullptr)
                     {
                         fim = true;
+
                         pontuacao_txt.setString(pontuacao(alvo.getFillColor(), atual.getFillColor()));
                         pontuacao_txt.setFillColor(alvo.getFillColor());
+
+                        alvo.setRadius(100.0f);
+                        alvo.setOutlineThickness(-6);
+                        alvo.setPosition(875, 225);
+
+                        atual.setPosition(875, 475);
                     }
 
                     if (!fim)
@@ -92,7 +101,13 @@ int main()
                     esvaziarArvore(&arvore);
 
                     alvo.setFillColor(cor_aleatoria_rgb(gerador));
+                    alvo.setRadius(50.0f);
+                    alvo.setOutlineThickness(-4);
+                    alvo.setPosition(1425, 75);
+
                     atual.setFillColor(sf::Color::White);
+                    atual.setPosition(700, 500);
+
                     alvo_txt.setFillColor(alvo.getFillColor());
 
                     novo_jogo(gerador, arvore, alvo.getFillColor(), raiz_atual, bt, bt2, 10);
@@ -118,7 +133,7 @@ int main()
         else if (!fim)
             desenhar_jogo(janela, alvo_txt, bt, bt2, x_mouse, y_mouse, preview, atual, alvo);
         else
-            desenhar_fim_de_jogo(janela, pontuacao_txt, atual, alvo);
+            desenhar_fim_de_jogo(janela, pontuacao_txt, atual, alvo, tela_final);
 
         janela.display();
     }

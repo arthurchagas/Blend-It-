@@ -45,11 +45,12 @@ std::string pontuacao(sf::Color a, sf::Color b)
     const double fator = std::sqrt(2 * 255 * 255);
     double pontuacao = fator - distancia(a, b);
     double pontuacao_por_cento = pontuacao / fator * 100;
-    return "Pontuacao: " + std::to_string(static_cast<int>(std::floor(pontuacao_por_cento))) + "%";
+    return std::to_string(static_cast<int>(std::floor(pontuacao_por_cento))) + "%";
 }
 
 void iniciar(std::default_random_engine &gerador, sf::Font &fonte, sf::Texture &tela_inicio_texture,
-             sf::Sprite &tela_inicio, sf::Texture &botao_inicio_texture, sf::Sprite &botao_inicio)
+             sf::Sprite &tela_inicio, sf::Texture &botao_inicio_texture, sf::Sprite &botao_inicio,
+             sf::Texture &tela_final_texture, sf::Sprite &tela_final)
 {
     gerador.seed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
@@ -60,6 +61,9 @@ void iniciar(std::default_random_engine &gerador, sf::Font &fonte, sf::Texture &
 
     botao_inicio_texture.loadFromFile("rsc/Jogar.png");
     botao_inicio.setTexture(botao_inicio_texture);
+
+    tela_final_texture.loadFromFile("rsc/TelaFinal.png");
+    tela_final.setTexture(tela_final_texture);
 }
 
 void novo_jogo(std::default_random_engine &gerador, avl_t &arvore, sf::Color cor_base, apontador_t &raiz_atual,
@@ -100,8 +104,9 @@ void desenhar_jogo(sf::RenderWindow &janela, sf::Text &alvo_txt, Botao *&bt, Bot
 }
 
 void desenhar_fim_de_jogo(sf::RenderWindow &janela, sf::Text pontuacao_txt, sf::CircleShape &atual,
-                          sf::CircleShape &alvo)
+                          sf::CircleShape &alvo, sf::Sprite &tela_final)
 {
+    janela.draw(tela_final);
     janela.draw(pontuacao_txt);
     janela.draw(alvo);
     janela.draw(atual);
