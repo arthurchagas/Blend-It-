@@ -7,13 +7,19 @@
 
 class Botao {
 public:
+	// Construtor
 	Botao(float x, float y, float r, int grossura_borda = 0, sf::Color cor_borda = sf::Color::Black);
 
+	// Detecta se x e y estão sobre este este botão
 	bool clicado(int x, int y) const;
 
-	sf::Color get_cor();
+	// Retorna o círculo deste botão
 	sf::CircleShape& get_circulo();
 
+	// Retorna a cor do círculo deste botão
+	sf::Color get_cor();
+
+	// Redefine a cor do círculo deste botão
 	void set_cor(sf::Color cor);
 
 private:
